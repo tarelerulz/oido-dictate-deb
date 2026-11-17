@@ -1,0 +1,27 @@
+#!/bin/sh
+# Exit 0 if a V3D 4.2 GPU (Raspberry Pi 4 / 400 / CM4) is present, so the Oido
+# GPU engine can run. Pi 5 (V3D 7.1) and other arm64 hardware return 1, meaning
+# "use the CPU engine". Pass -q to stay silent.
+QUIET=0
+[ "$1" = "-q" ] && QUIET=1
+say() { [ "$QUIET" = 1 ] || echo "$@"; }
+
+dev=""
+if command -v vulkaninfo >/dev/null 2>&1; then
+  dev=$(vulkaninfo --summary 2>/dev/null | grep -i "deviceName" | grep -i "V3D" | head -1)
+fi
+model=""
+[ -r /proc/device-tree/model ] && model=$(tr -d '\000' < /proc/device-tree/model 2>/dev/null)
+
+case "$dev" in
+  *"V3D 4.2"*) say "GPU engine supported: $dev"; exit 0 ;;
+  *"V3D 7"*)   say "Pi 5-class GPU ($dev); CPU engine will be used."; exit 1 ;;
+esac
+
+# No Vulkan tool, or no V3D line: fall back to the board model string.
+case "$model" in
+  *"Raspberry Pi 4"*|*"Compute Module 4"*) say "Supported board: $model"; exit 0 ;;
+esac
+
+say "No V3D 4.2 GPU found (${dev:-${model:-unknown}}); CPU engine will be used."
+exit 1

@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  configure)
+    if oido-gpu-detect; then
+      echo "oido-dictate-gpu: V3D 4.2 GPU detected. The Speak window will default to the"
+      echo "  GPU engine (oido-gpu-lm). The first GPU run builds a one-time model cache in"
+      echo "  ~/.cache/oido-dictate/gpu-work."
+    else
+      echo "oido-dictate-gpu: no V3D 4.2 GPU here (this add-on is for Pi 4 / 400 / CM4)."
+      echo "  Installed, but dictation will keep using the CPU engine from oido-dictate."
+    fi
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

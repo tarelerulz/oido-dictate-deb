@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+# The payload is prebuilt (static binaries, Python, compiled shaders), so there
+# is nothing to compile. We only install files and keep the binaries untouched.
+
+%:
+	dh $@
+
+# Nothing to build or test.
+override_dh_auto_build:
+override_dh_auto_test:
+override_dh_auto_configure:
+
+# Keep the prebuilt binaries exactly as shipped (do not strip / rewrite them).
+override_dh_strip:
+override_dh_dwz:
+override_dh_strip_nondeterminism:
+
+# exec_hybrid links libvulkan at runtime; that dependency is declared by hand in
+# debian/control (libvulkan1), so skip automatic shlib scanning of the payload.
+override_dh_shlibdeps:

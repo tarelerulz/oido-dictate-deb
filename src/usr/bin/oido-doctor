@@ -1,0 +1,101 @@
+#!/bin/sh
+# oido-doctor: check that dictation can work on this machine and say what to fix.
+# Exit 0 = ready (warnings allowed), 1 = something blocks dictation.
+#   oido-doctor            full check incl. a short transcription self-test
+#   oido-doctor --quick    skip the self-test
+PREFIX="${OIDO_PREFIX:-/opt/oido-dictate}"
+LIB="${OIDO_LIBDIR:-/usr/lib/oido-dictate}"
+QUICK=0; [ "$1" = "--quick" ] && QUICK=1
+FAILS=0; WARNS=0
+ok()   { printf '  [ ok ] %s\n' "$*"; }
+warn() { printf '  [warn] %s\n' "$*"; WARNS=$((WARNS+1)); }
+bad()  { printf '  [FAIL] %s\n' "$*"; FAILS=$((FAILS+1)); }
+hdr()  { printf '\n%s\n' "$*"; }
+
+# ---- models location (same rule as oido-speak) ----
+MODELS_SYS=/var/lib/oido-dictate/models
+MODELS_USER="${XDG_CACHE_HOME:-$HOME/.cache}/oido-dictate/models"
+if [ -f "$MODELS_SYS/nemo8.tnm" ]; then MODELS="$MODELS_SYS"; else MODELS="$MODELS_USER"; fi
+MODEL="${OIDO_MODEL:-$MODELS/nemo8.tnm}"
+LM="${OIDO_LM:-$MODELS/nemo_lm.tlm}"
+PUNCT="${OIDO_PUNCT_MODEL:-$MODELS/sherpa-onnx-online-punct-en}"
+
+hdr "System"
+board=$(tr -d '\000' < /proc/device-tree/model 2>/dev/null)
+ok "board: ${board:-unknown}  ($(uname -m), $(nproc) cores)"
+[ "$(uname -m)" = aarch64 ] || bad "not a 64-bit ARM system; the packaged engines are aarch64 only"
+if grep -q asimddp /proc/cpuinfo 2>/dev/null; then DOT=1; ok "CPU has dot-product instructions (Pi 5 / A76 class)"; else DOT=0; ok "CPU has no dot-product (Pi 4 / A72 class)"; fi
+
+hdr "Engine"
+if [ "$DOT" = 1 ] && [ -x "$PREFIX/bin/tasr_cli_dotprod_static" ]; then CLI="$PREFIX/bin/tasr_cli_dotprod_static"; ok "CPU engine: dotprod build (fastest for this CPU)"
+elif [ -x "$PREFIX/bin/tasr_cli_a72_static" ]; then
+  CLI="$PREFIX/bin/tasr_cli_a72_static"
+  if [ "$DOT" = 1 ]; then warn "CPU engine: NEON build (no dotprod build installed; slower on this CPU)"; else ok "CPU engine: NEON build"; fi
+else CLI=""; bad "no CPU engine binary under $PREFIX/bin"; fi
+CLI="${OIDO_CLI:-$CLI}"
+if [ -n "$OIDO_CLI" ] && [ ! -x "$OIDO_CLI" ]; then bad "OIDO_CLI=$OIDO_CLI is not executable"; fi
+
+if [ -d "$PREFIX/gpu-port-kit" ]; then
+  if /usr/bin/oido-gpu-detect -q 2>/dev/null || oido-gpu-detect -q 2>/dev/null; then
+    ok "GPU engine: package installed and a V3D 4.2 GPU is present"
+    if command -v vulkaninfo >/dev/null 2>&1; then :; else warn "vulkaninfo not found (install vulkan-tools to diagnose GPU problems)"; fi
+  else ok "GPU package installed, but this board has no V3D 4.2 GPU: CPU engine will be used"; fi
+else
+  if oido-gpu-detect -q 2>/dev/null; then warn "this Pi has a supported GPU; install oido-dictate-gpu for the GPU engine"; else ok "GPU add-on not installed (not needed here)"; fi
+fi
+
+hdr "Models  ($MODELS)"
+if [ -s "$MODEL" ] && [ -s "$LM" ]; then
+  if OIDO_MODELS_DIR="$MODELS" "$LIB/fetch-models.sh" check >/dev/null 2>&1; then
+    ok "speech + language model present, checksums verified"
+  else
+    ok "speech + language model present"
+    warn "checksum check not clean (custom models are fine; otherwise run: oido-fetch-models)"
+  fi
+else
+  [ -s "$MODEL" ] || bad "missing speech model $MODEL   -> run: oido-fetch-models"
+  [ -s "$LM" ]    || bad "missing language model $LM   -> run: oido-fetch-models"
+fi
+if [ -s "$PUNCT/model.int8.onnx" ]; then ok "punctuation model present"; else warn "no punctuation model (text will use simple rules)  -> run: oido-fetch-models"; fi
+
+hdr "Python / audio / typing"
+PY="$PREFIX/venv/bin/python"; [ -x "$PY" ] || { PY=python3; warn "private venv missing at $PREFIX/venv (using system python3)"; }
+if "$PY" -c "import sounddevice" 2>/dev/null; then ok "sounddevice available"; else bad "python module sounddevice missing  -> $PREFIX/venv/bin/pip install sounddevice"; fi
+if "$PY" -c "import sherpa_onnx" 2>/dev/null; then ok "sherpa_onnx available (punctuation)"; else warn "python module sherpa_onnx missing  -> $PREFIX/venv/bin/pip install sherpa-onnx"; fi
+if "$PY" -c "import numpy" 2>/dev/null; then ok "numpy available"; else bad "numpy missing  -> sudo apt install python3-numpy"; fi
+if "$PY" -c "import tkinter" 2>/dev/null; then ok "tkinter available (Speak window)"; else bad "tkinter missing  -> sudo apt install python3-tk"; fi
+MIC=$("$PY" - <<'PY' 2>/dev/null
+import sounddevice as sd
+d=[x['name'] for x in sd.query_devices() if x['max_input_channels']>0]
+print(d[0] if d else "")
+PY
+)
+if [ -n "$MIC" ]; then ok "microphone: $MIC"; else bad "no microphone input found (plug one in; check: arecord -l)"; fi
+session="${XDG_SESSION_TYPE:-}"; [ -z "$session" ] && [ -n "$WAYLAND_DISPLAY" ] && session=wayland
+case "$session" in
+  wayland) if command -v wtype >/dev/null 2>&1; then ok "Wayland session, wtype available (typing into windows)"; else bad "wtype missing  -> sudo apt install wtype"; fi ;;
+  x11)     warn "X11 session: the packaged typer (wtype) needs Wayland; text goes to the clipboard/window only" ;;
+  *)       warn "could not tell the session type (run this from your desktop to check typing)" ;;
+esac
+command -v wl-copy >/dev/null 2>&1 && ok "wl-clipboard available" || warn "wl-clipboard missing  -> sudo apt install wl-clipboard"
+
+if [ "$QUICK" = 0 ] && [ -n "$CLI" ] && [ -s "$MODEL" ] && [ -s "$LM" ]; then
+  hdr "Self-test (loads the model, transcribes 2 s of silence)"
+  TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+  "$PY" - "$TMP/s.wav" <<'PY'
+import sys, wave
+w = wave.open(sys.argv[1], "wb"); w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000)
+w.writeframes(b"\0\0" * 32000); w.close()
+PY
+  s=$(date +%s%N)
+  if "$CLI" "$MODEL" --lm "$LM" "$TMP/s.wav" >"$TMP/out" 2>"$TMP/err"; then
+    e=$(date +%s%N); ok "engine ran and exited cleanly in $(( (e-s)/1000000 )) ms"
+  else
+    rc=$?; bad "engine failed (exit $rc): $(tail -1 "$TMP/err")"
+    [ "$rc" = 132 ] && bad "illegal instruction: wrong CPU build for this machine; set OIDO_CLI to the a72 build"
+  fi
+fi
+
+printf '\n'
+if [ $FAILS -gt 0 ]; then echo "Result: $FAILS problem(s), $WARNS warning(s). Dictation will NOT work until the [FAIL] lines are fixed."; exit 1; fi
+echo "Result: ready ($WARNS warning(s))."; exit 0

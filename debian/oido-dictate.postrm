@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  purge)
+    rm -rf "$HOME/.cache/oido-dictate" 2>/dev/null || true
+    rm -rf /opt/oido-dictate/venv
+    rm -rf /var/lib/oido-dictate
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

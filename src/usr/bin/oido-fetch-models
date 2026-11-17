@@ -1,0 +1,3 @@
+#!/bin/sh
+# Download / verify the Oido models.  oido-fetch-models [cpu|check]
+exec "${OIDO_LIBDIR:-/usr/lib/oido-dictate}/fetch-models.sh" "${@:-cpu}"

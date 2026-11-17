@@ -1,0 +1,37 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: oido-dictate
+
+Files: *
+Copyright: 2026 Oido Dictate contributors
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
+
+Comment:
+ The gpu-port-kit code, shaders and runners are MIT-licensed (see
+ gpu-port-kit/LICENSE in the source).
+ .
+ MODEL WEIGHTS ARE NOT INCLUDED IN THIS PACKAGE. They are downloaded on first
+ run by /usr/lib/oido-dictate/fetch-models.sh from their upstream sources and
+ keep their own licenses:
+   - Oido nemo8 speech model + language model (nemo8.tnm, nemo_lm.tlm, from
+     lokutor-ai/oido-ctc-small-int8 on Hugging Face): CC-BY-4.0 per the
+     upstream model card (attribution required; no share-alike). Verify on the
+     model page before redistributing. The GPU blob nemo8_kit.bin is generated
+     locally on the user's machine from nemo8.tnm and is not distributed.
+   - sherpa-onnx online punctuation model (k2-fsa/sherpa-onnx): Apache-2.0
+     (verify on the release page).
+ Because the weights are fetched, not shipped, this package does not
+ redistribute them; downstream redistributors who choose to bundle the weights
+ must comply with the licenses above.

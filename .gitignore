@@ -1,0 +1,11 @@
+upstream/
+debian/.debhelper/
+debian/*.substvars
+debian/debhelper-build-stamp
+debian/files
+debian/oido-dictate/
+debian/oido-dictate-gpu/
+*.deb
+*.buildinfo
+*.changes
+*.bak*

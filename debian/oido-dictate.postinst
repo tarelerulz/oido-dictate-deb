@@ -1,0 +1,31 @@
+#!/bin/sh
+# Build the private venv (sounddevice for the mic, sherpa-onnx for punctuation)
+# and fetch the CPU models. Both need internet; neither failure aborts the
+# install (dictation degrades gracefully and can be completed later).
+set -e
+
+PREFIX=/opt/oido-dictate
+VENV="$PREFIX/venv"
+
+case "$1" in
+  configure)
+    if [ ! -x "$VENV/bin/python" ]; then
+      python3 -m venv --system-site-packages "$VENV" \
+        || echo "oido-dictate: WARNING: could not create venv at $VENV"
+    fi
+    if [ -x "$VENV/bin/pip" ]; then
+      "$VENV/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
+      if ! "$VENV/bin/pip" install --quiet sounddevice sherpa-onnx >/dev/null 2>&1; then
+        echo "oido-dictate: WARNING: could not install sounddevice / sherpa-onnx."
+        echo "  Run when online:  $VENV/bin/pip install sounddevice sherpa-onnx"
+      fi
+    fi
+    mkdir -p /var/lib/oido-dictate/models
+    /usr/lib/oido-dictate/fetch-models.sh cpu || \
+      echo "oido-dictate: models not downloaded yet. Connect to the internet and run: oido-fetch-models"
+    echo "oido-dictate: installed. Run 'oido-doctor' to check this machine, then 'oido-speak'."
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

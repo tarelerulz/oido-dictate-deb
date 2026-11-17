@@ -1,0 +1,11 @@
+upstream/oido_worker.py            opt/oido-dictate/
+upstream/punct_server.py           opt/oido-dictate/
+upstream/inject.py                 opt/oido-dictate/
+upstream/bin/*                     opt/oido-dictate/bin/
+src/stt.py                         opt/oido-dictate/
+src/usr/bin/oido-speak             usr/bin/
+src/usr/bin/oido-gpu-detect        usr/bin/
+src/usr/lib/oido-dictate/fetch-models.sh  usr/lib/oido-dictate/
+src/oido-dictate.desktop           usr/share/applications/
+src/usr/bin/oido-doctor              usr/bin/
+src/usr/bin/oido-fetch-models        usr/bin/

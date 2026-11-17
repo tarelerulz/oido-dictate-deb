@@ -1,0 +1,44 @@
+Source: oido-dictate
+Section: sound
+Priority: optional
+Maintainer: Tarel <noreply@example.invalid>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://example.invalid/oido-dictate
+
+Package: oido-dictate
+Architecture: arm64
+Depends: ${misc:Depends},
+         python3 (>= 3.9),
+         python3-venv,
+         python3-numpy,
+         python3-tk,
+         libportaudio2,
+         wtype,
+         wl-clipboard,
+         curl | wget
+Description: On-device speech-to-text dictation (CPU engine)
+ A small Wayland "Speak" window that transcribes your voice and types the text
+ into whatever window is focused. This base package runs the portable CPU engine
+ (statically linked, any arm64) with language-model decoding and adds real
+ punctuation and capitalization.
+ .
+ The model weights are not shipped: they are downloaded on first run from their
+ upstream source (see /usr/lib/oido-dictate/fetch-models.sh). Install the
+ oido-dictate-gpu add-on on a Raspberry Pi 4 / 400 for the faster GPU engine.
+
+Package: oido-dictate-gpu
+Architecture: arm64
+Depends: ${misc:Depends},
+         oido-dictate (= ${binary:Version}),
+         libvulkan1,
+         mesa-vulkan-drivers
+Description: On-device speech-to-text dictation (GPU engine add-on, Pi 4/400)
+ Add-on for oido-dictate that enables the hand-written VideoCore VI (V3D 4.2)
+ GPU engine, which runs the encoder on the Raspberry Pi 4 / 400 / CM4 GPU and
+ leaves the CPU cores free. When present, the Speak window gains the oido-gpu and
+ oido-gpu-lm engines and defaults to oido-gpu-lm.
+ .
+ On any other hardware (e.g. a Pi 5, V3D 7.1) the GPU engine is not used and
+ dictation falls back to the CPU engine from oido-dictate.

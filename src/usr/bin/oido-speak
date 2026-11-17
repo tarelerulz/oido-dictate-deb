@@ -1,0 +1,34 @@
+#!/bin/sh
+# Launch the Speak dictation window. Sets the packaged paths, then runs stt.py
+# with the private venv python (which has sounddevice + sherpa_onnx). Users can
+# override any OIDO_* / GPUPORT_* variable in the environment.
+set -e
+
+PREFIX=/opt/oido-dictate
+MODELS_SYS=/var/lib/oido-dictate/models
+MODELS_USER="${XDG_CACHE_HOME:-$HOME/.cache}/oido-dictate/models"
+
+# Prefer the system models dir if populated, else the per-user cache.
+if [ -f "$MODELS_SYS/nemo8.tnm" ]; then MODELS="$MODELS_SYS"; else MODELS="$MODELS_USER"; fi
+
+export OIDO_MODEL="${OIDO_MODEL:-$MODELS/nemo8.tnm}"
+export OIDO_LM="${OIDO_LM:-$MODELS/nemo_lm.tlm}"
+export OIDO_KIT="${OIDO_KIT:-$PREFIX/gpu-port-kit}"
+export OIDO_PUNCT_PY="${OIDO_PUNCT_PY:-$PREFIX/venv/bin/python}"
+export OIDO_PUNCT_MODEL="${OIDO_PUNCT_MODEL:-$MODELS/sherpa-onnx-online-punct-en}"
+export GPUPORT_WORK="${GPUPORT_WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/oido-dictate/gpu-work}"
+mkdir -p "$GPUPORT_WORK"
+
+# Type into the focused window with wtype (portable Wayland path). The author's
+# IME-daemon method needs a locally-built binary that is not shipped, so force
+# the key-by-key typer unless the user overrides it. Needs a wlroots Wayland
+# session (Raspberry Pi OS default: Wayfire / labwc). X11 or GNOME need ydotool.
+export DICTATE_METHOD="${DICTATE_METHOD:-type}"
+
+# Fetch models on first run if missing (best-effort; writes to the user cache if
+# the system dir is not writable).
+OIDO_MODELS_DIR="$MODELS" /usr/lib/oido-dictate/fetch-models.sh cpu || true
+
+VENV_PY="$PREFIX/venv/bin/python"
+[ -x "$VENV_PY" ] || VENV_PY=python3
+exec "$VENV_PY" "$PREFIX/stt.py" "$@"

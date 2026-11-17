@@ -1,0 +1,8 @@
+oido-dictate (0.1.0) unstable; urgency=medium
+
+  * Initial packaging.
+  * oido-dictate: CPU engine (static tasr_cli + LM) + Speak window + punctuation.
+  * oido-dictate-gpu: V3D 4.2 GPU engine add-on (Pi 4 / 400 / CM4).
+  * Model weights downloaded on first run, not bundled.
+
+ -- Tarel <noreply@example.invalid>  Sun, 16 Nov 2026 15:00:00 +0000
