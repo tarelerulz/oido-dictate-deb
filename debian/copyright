@@ -3,10 +3,10 @@ Upstream-Name: oido-dictate
 
 Files: *
 Copyright: 2026 Oido Dictate contributors
-License: GPL-3+
+License: GPL-3
  This package bundles binaries built from lokutor-ai/oido, which is licensed
  under the GNU General Public License version 3. The packaging and the
- combined work are therefore distributed under GPL-3 or later. The full text is
+ combined work are therefore distributed under GPL-3. The full text is
  in /usr/share/common-licenses/GPL-3 on Debian systems and in the LICENSE file
  of the source repository.
 
