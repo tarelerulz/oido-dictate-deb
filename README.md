@@ -59,7 +59,7 @@ oido-speak                                                   # or the "Speak" ap
    `tasr_cli`) has only been run on an ARM phone VM, not on a Pi 5.
 4. **GPU model blob** `nemo8_kit.bin` is generated from `nemo8.tnm` on the first GPU run. If that
    fails, the worker falls back to the CPU engine per phrase.
-5. **Maintainer** in `debian/control` is a placeholder address.
+5. **Maintainer** is the author's GitHub noreply address, not a monitored mailbox. Use GitHub issues.
 
 ## Helper commands
 
@@ -81,8 +81,8 @@ oido-speak                                                   # or the "Speak" ap
 Packages: `oido-dictate_0.1.0_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.0_arm64.deb` (GPU add-on).
 
 ```
-dede2fa88c5180818d71d3150c149a92313ed42efcff11d582b2d244ec3ad58b  oido-dictate_0.1.0_arm64.deb
-494672886f313ffb67c726b49cba458f1a60fe481ad37e8f5b7824a1b17f6b9c  oido-dictate-gpu_0.1.0_arm64.deb
+0af489d498422b7ed2137201e179e6218cd9d01e3e567014825a338046b6bfe1  oido-dictate_0.1.0_arm64.deb
+cb30f8a56c45d58826bb00df2c53df406a2d5812ffb00d79866a2b82bd3204c4  oido-dictate-gpu_0.1.0_arm64.deb
 ```
 
 ### What was tested
@@ -93,9 +93,18 @@ Test machine: Raspberry Pi 400 (arm64), fresh Raspberry Pi OS install, packages 
 |---|---|
 | `oido-dictate` installs on a clean system | Pass |
 | Model files in `/var/lib/oido-dictate/models` match the checksums in `fetch-models.sh` | Pass |
-| `oido-doctor` engine self-test (transcribes a built-in clip) | Pass (105 ms) |
-| `oido-dictate-gpu` installs and the GPU engine runs | Pass (rebuilt debs, clean reinstall) |
-| Contents of the final debs include both fixes below | Pass (unpacked and checked) |
+| `oido-doctor` on the fresh install: 0 warnings, USB mic found, engine self-test | Pass (104-113 ms) |
+| `oido-dictate-gpu` installs and the GPU engine runs | Pass |
+| `apt remove` of the GPU add-on, then the base package | Pass |
+| `apt purge` removes venv, models, `/opt/oido-dictate`, all `/usr/bin/oido-*` | Pass |
+| Fresh install again from the purged state (a true first install) | Pass, doctor ready |
+
+Notes: the purge test left `/usr/lib/oido-dictate` behind only because of an unpackaged backup
+file from a manual patch on the test drive; the package owns just `fetch-models.sh`. The per-user
+GPU cache `~/.cache/oido-dictate` (about 175 MB) stays after purge, by design. The published debs
+differ from the ones the install tests ran on only in the `Maintainer` and `Homepage` fields of
+the control file; the data archive is byte-identical. The published debs themselves were not
+re-installed.
 
 ### Bugs found by the clean-install test (fixed in 0.1.0)
 
@@ -108,9 +117,8 @@ Test machine: Raspberry Pi 400 (arm64), fresh Raspberry Pi OS install, packages 
 
 ### Not tested yet
 
-- Dictation with a real microphone on the fresh install. The first test machine had no
-  mic, so `oido-doctor` correctly reported `[FAIL] no microphone`.
-- Removing and purging the packages (`apt remove` / `apt purge`).
+- Dictating by voice into a window on the fresh install (the doctor finds the mic and the
+  engine self-test passes, but nobody has spoken to it there yet).
 - Raspberry Pi 5. The static dot-product build of `tasr_cli` was checked on an ARM
   phone VM only (same text output as the baseline, 1.2 to 2.0x less CPU time).
 - Long-run GPU thermals and stability.

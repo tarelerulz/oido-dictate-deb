@@ -1,11 +1,11 @@
 Source: oido-dictate
 Section: sound
 Priority: optional
-Maintainer: Tarel <noreply@example.invalid>
+Maintainer: Tarel <334372633+tarelerulz@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
-Homepage: https://example.invalid/oido-dictate
+Homepage: https://github.com/tarelerulz/oido-dictate-deb
 
 Package: oido-dictate
 Architecture: arm64
