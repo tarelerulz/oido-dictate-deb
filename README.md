@@ -128,3 +128,7 @@ Test machine: Raspberry Pi 400 (arm64), fresh Raspberry Pi OS install, packages 
 ### Worker errors
 
 GPU worker errors appear only in the Speak window status line. There is no log file yet.
+
+## License
+
+GPL-3.0-or-later (see `LICENSE`), the same license as [lokutor-ai/oido](https://github.com/lokutor-ai/oido), whose code the packaged binaries are built from. Model weights are not included and keep their own licenses (see `debian/copyright`).
