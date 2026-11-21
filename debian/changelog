@@ -1,3 +1,19 @@
+oido-dictate (0.1.6) unstable; urgency=medium
+
+  * Better diagnostics when the microphone can't be opened. Previously the worker
+    crashed with a raw traceback that the Speak window hid behind "engine stopped
+    unexpectedly", so a mic/audio problem looked like a model-load crash.
+    - oido_worker.py now catches the audio-input open failure and reports a clear
+      "no microphone found" / "cannot open microphone" message (with the available
+      input device names) instead of an unhandled PortAudioError.
+    - stt.py (Speak window) shows the engine's real error on an unexpected exit,
+      including an uncaught traceback's last line, instead of a generic message.
+    - oido-doctor: when ALSA sees a capture device but the app can't open it (a USB
+      headset stuck in PipeWire's "Pro Audio" profile hides its mic), it now says so
+      and prints the fix: wpctl set-profile <card-id> 1.
+
+ -- Tarel <334372633+tarelerulz@users.noreply.github.com>  Sat, 21 Nov 2026 01:10:00 +0000
+
 oido-dictate (0.1.5) unstable; urgency=medium
 
   * Fix: typing was slower than in earlier builds, and text did not land natively in

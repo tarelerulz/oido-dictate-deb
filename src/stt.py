@@ -60,9 +60,15 @@ class App:
         self.root = root
         self.proc = None
         self.q = queue.Queue()
+        self.last_error = ""
         self.model = tk.StringVar(value=DEFAULT_MODEL)
 
-        root.title("Speak")
+        try:
+            ver = subprocess.run(["dpkg-query", "-W", "-f=${Version}", "oido-dictate"],
+                                 capture_output=True, text=True, timeout=3).stdout.strip()
+        except Exception:
+            ver = ""
+        root.title("Speak v" + ver if ver else "Speak")
         root.geometry("260x118+1630+40")
         root.resizable(False, False)
         root.attributes("-topmost", True)
@@ -112,6 +118,7 @@ class App:
         except Exception as e:
             self.set_status("could not start: %s" % e)
             return
+        self.last_error = ""
         threading.Thread(target=self.reader, args=(self.proc,), daemon=True).start()
         self.btn.configure(text="■  STOP", bg="#b3261e", activebackground="#b3261e")
         self.set_status("loading model…")
@@ -147,7 +154,10 @@ class App:
         if line == "__EXIT__":
             if self.proc is None:
                 return
-            self.set_status("engine stopped unexpectedly")
+            if self.last_error:
+                self.set_status("stopped — " + self.last_error[-180:], "#f28b82")
+            else:
+                self.set_status("engine stopped unexpectedly", "#f28b82")
             self.btn.configure(text="●  START", bg="#2d7d46", activebackground="#2d7d46")
             self.proc = None
             return
@@ -160,7 +170,13 @@ class App:
         elif tag == "FINAL":
             self.set_status("typed: " + txt[-80:], "#81c995")
         elif tag == "ERROR":
+            self.last_error = txt
             self.set_status("error: " + txt[-120:], "#f28b82")
+        elif line.strip() and "\t" not in line and not line.startswith("["):
+            # Untagged output (e.g. a Python traceback): keep the latest meaningful
+            # line so an unexpected exit can show the real cause, not a generic message.
+            # Protocol lines carry a tab; "[engine] ..." timing lines start with "[".
+            self.last_error = line.strip()
 
     def set_status(self, text, color="#9aa0a6"):
         self.status.configure(text=text, fg=color)

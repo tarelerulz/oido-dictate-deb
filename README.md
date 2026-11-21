@@ -33,8 +33,8 @@ and shows the right engines.
 ```sh
 cd ~/oido-deb
 ./assemble-upstream.sh            # pulls code+binaries from ~/oido-dictate (no models)
-dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.5_arm64.deb
-                                  #    ../oido-dictate-gpu_0.1.5_arm64.deb
+dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.6_arm64.deb
+                                  #    ../oido-dictate-gpu_0.1.6_arm64.deb
 ```
 
 Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhelper devscripts`).
@@ -42,8 +42,8 @@ Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhel
 ## Install / use
 
 ```sh
-sudo apt install ./oido-dictate_0.1.5_arm64.deb              # everyone
-sudo apt install ./oido-dictate-gpu_0.1.5_arm64.deb          # Pi 4/400 only, for the GPU path
+sudo apt install ./oido-dictate_0.1.6_arm64.deb              # everyone
+sudo apt install ./oido-dictate-gpu_0.1.6_arm64.deb          # Pi 4/400 only, for the GPU path
 oido-speak                                                   # or the "Speak" app icon
 ```
 
@@ -78,11 +78,11 @@ oido-speak                                                   # or the "Speak" ap
 
 ## Testing notes
 
-Packages: `oido-dictate_0.1.5_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.5_arm64.deb` (GPU add-on).
+Packages: `oido-dictate_0.1.6_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.6_arm64.deb` (GPU add-on).
 
 ```
-11d2274802140c58f9a528f09e04007265b85eaf5003028b3d3d387312cf131e  oido-dictate_0.1.5_arm64.deb
-8bde673f0f921d274dac0868c3d4dca174d53a1506055c1fae722b91ab330a1b  oido-dictate-gpu_0.1.5_arm64.deb
+eb40feac5f852037dfc41fbff8240497c827f7f9d40410561a34388e8bbda2eb  oido-dictate_0.1.6_arm64.deb
+22555b91eb558254d4c632a49273881ffd24d0e7f24ace3f9a99bc8d2cf68868  oido-dictate-gpu_0.1.6_arm64.deb
 ```
 
 ### What was tested
@@ -90,6 +90,8 @@ Packages: `oido-dictate_0.1.5_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.5_
 The clean-install table below was run on v0.1.0. v0.1.1-v0.1.3 were checked with benchmarks and logit comparisons only (v0.1.3 adds a faster Pi 5 CPU build, measured on a phone with dotprod, and the `oido-hybrid` engine, tested with a WAV file); they have not been re-run through a fresh install, a real Pi 5, or microphone dictation.
 
 v0.1.5 restores **native text input**: dictation now commits through the Wayland input-method path (the `imetype` daemon, shipped in `/opt/oido-dictate/bin`), the same channel an on-screen keyboard uses, so text lands instantly in Firefox/Gmail and other apps with no key-by-key simulation. The `imetype` daemon was verified to bind to the compositor (labwc) on a Pi 400; it auto-falls back to `wtype` for XWayland windows and X11/GNOME sessions.
+
+v0.1.6 improves **mic error reporting**. If the microphone can't be opened the worker now reports a clear "no microphone" / "cannot open microphone" message (with the available input device names) instead of crashing with a raw traceback, the Speak window shows that real error instead of "engine stopped unexpectedly", and `oido-doctor` detects the common case where a USB headset is stuck in PipeWire's "Pro Audio" profile (ALSA sees the mic but the app can't) and prints the fix: `wpctl set-profile <card-id> 1`. Verified on a Pi 400.
 
 Test machine: Raspberry Pi 400 (arm64), fresh Raspberry Pi OS install, packages copied over on a USB drive.
 

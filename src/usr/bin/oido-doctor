@@ -70,7 +70,13 @@ d=[x['name'] for x in sd.query_devices() if x['max_input_channels']>0]
 print(d[0] if d else "")
 PY
 )
-if [ -n "$MIC" ]; then ok "microphone: $MIC"; else bad "no microphone input found (plug one in; check: arecord -l)"; fi
+if [ -n "$MIC" ]; then
+  ok "microphone: $MIC"
+elif arecord -l 2>/dev/null | grep -qi '^card '; then
+  bad "a mic is attached (ALSA sees it) but the app can't open it. A USB headset on PipeWire is often stuck in 'Pro Audio' profile, which hides its mic. Fix:  wpctl status  (find the headset's card id), then  wpctl set-profile <card-id> 1  (pick the 'Analog ... + Mono Input' profile)"
+else
+  bad "no microphone input found (plug one in; check: arecord -l)"
+fi
 session="${XDG_SESSION_TYPE:-}"; [ -z "$session" ] && [ -n "$WAYLAND_DISPLAY" ] && session=wayland
 case "$session" in
   wayland) if command -v wtype >/dev/null 2>&1; then ok "Wayland session, wtype available (typing into windows)"; else bad "wtype missing  -> sudo apt install wtype"; fi ;;
