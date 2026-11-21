@@ -33,8 +33,8 @@ and shows the right engines.
 ```sh
 cd ~/oido-deb
 ./assemble-upstream.sh            # pulls code+binaries from ~/oido-dictate (no models)
-dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.0_arm64.deb
-                                  #    ../oido-dictate-gpu_0.1.0_arm64.deb
+dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.3_arm64.deb
+                                  #    ../oido-dictate-gpu_0.1.3_arm64.deb
 ```
 
 Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhelper devscripts`).
@@ -42,8 +42,8 @@ Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhel
 ## Install / use
 
 ```sh
-sudo apt install ./oido-dictate_0.1.0_arm64.deb              # everyone
-sudo apt install ./oido-dictate-gpu_0.1.0_arm64.deb          # Pi 4/400 only, for the GPU path
+sudo apt install ./oido-dictate_0.1.3_arm64.deb              # everyone
+sudo apt install ./oido-dictate-gpu_0.1.3_arm64.deb          # Pi 4/400 only, for the GPU path
 oido-speak                                                   # or the "Speak" app icon
 ```
 
@@ -78,14 +78,16 @@ oido-speak                                                   # or the "Speak" ap
 
 ## Testing notes
 
-Packages: `oido-dictate_0.1.0_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.0_arm64.deb` (GPU add-on).
+Packages: `oido-dictate_0.1.3_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.3_arm64.deb` (GPU add-on).
 
 ```
-0af489d498422b7ed2137201e179e6218cd9d01e3e567014825a338046b6bfe1  oido-dictate_0.1.0_arm64.deb
-cb30f8a56c45d58826bb00df2c53df406a2d5812ffb00d79866a2b82bd3204c4  oido-dictate-gpu_0.1.0_arm64.deb
+2eb0203fa22a51238f1c85a86bb4caee3766ac7cb5bef8a399adc2af9e71b882  oido-dictate_0.1.3_arm64.deb
+871fc7b33d26362c2d30c24a15ddc47022b711a299c34ab8afe7e85405a1da6a  oido-dictate-gpu_0.1.3_arm64.deb
 ```
 
 ### What was tested
+
+The clean-install table below was run on v0.1.0. v0.1.1-v0.1.3 were checked with benchmarks and logit comparisons only (v0.1.3 adds a faster Pi 5 CPU build, measured on a phone with dotprod, and the `oido-hybrid` engine, tested with a WAV file); they have not been re-run through a fresh install, a real Pi 5, or microphone dictation.
 
 Test machine: Raspberry Pi 400 (arm64), fresh Raspberry Pi OS install, packages copied over on a USB drive.
 

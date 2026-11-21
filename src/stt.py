@@ -6,7 +6,7 @@ talk; each finished phrase is typed into the focused window. Which engines appea
 depends on what is installed:
 
   * base (oido-dictate):        oido-cpu only
-  * + GPU add-on on a Pi 4/400: oido-gpu-lm (default), oido-gpu, oido-cpu
+  * + GPU add-on on a Pi 4/400: oido-gpu-lm (default), oido-hybrid, oido-gpu, oido-cpu
 
 Paths come from the package layout under /opt/oido-dictate and from the OIDO_*
 environment set by the `oido-speak` launcher. Override the default engine with
@@ -41,7 +41,7 @@ def gpu_available():
 
 
 if gpu_available():
-    MODELS = ["oido-gpu-lm", "oido-gpu", "oido-cpu"]
+    MODELS = ["oido-gpu-lm", "oido-hybrid", "oido-gpu", "oido-cpu"]
     DEFAULT_MODEL = "oido-gpu-lm"
 else:
     MODELS = ["oido-cpu"]
