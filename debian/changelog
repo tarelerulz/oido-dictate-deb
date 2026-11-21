@@ -1,3 +1,12 @@
+oido-dictate (0.1.4) unstable; urgency=medium
+
+  * Fix: debian/copyright said MIT for the whole package. The bundled CPU engine comes from
+    lokutor-ai/oido, which is GPL-3, so the package is now declared GPL-3 (the gpu-port-kit
+    code stays available under MIT). 0.1.1-0.1.3 shipped the wrong licence text.
+  * No code changes: binaries, worker and kit are identical to 0.1.3.
+
+ -- Tarel <334372633+tarelerulz@users.noreply.github.com>  Fri, 20 Nov 2026 23:00:00 +0000
+
 oido-dictate (0.1.3) unstable; urgency=medium
 
   * New engine oido-hybrid (GPU add-on, Pi 4/400): a long phrase (>= 4.5 s) with a real

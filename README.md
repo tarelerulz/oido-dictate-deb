@@ -33,8 +33,8 @@ and shows the right engines.
 ```sh
 cd ~/oido-deb
 ./assemble-upstream.sh            # pulls code+binaries from ~/oido-dictate (no models)
-dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.3_arm64.deb
-                                  #    ../oido-dictate-gpu_0.1.3_arm64.deb
+dpkg-buildpackage -us -uc -b      # -> ../oido-dictate_0.1.4_arm64.deb
+                                  #    ../oido-dictate-gpu_0.1.4_arm64.deb
 ```
 
 Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhelper devscripts`).
@@ -42,8 +42,8 @@ Build host needs: `dpkg-dev debhelper` (`sudo apt install build-essential debhel
 ## Install / use
 
 ```sh
-sudo apt install ./oido-dictate_0.1.3_arm64.deb              # everyone
-sudo apt install ./oido-dictate-gpu_0.1.3_arm64.deb          # Pi 4/400 only, for the GPU path
+sudo apt install ./oido-dictate_0.1.4_arm64.deb              # everyone
+sudo apt install ./oido-dictate-gpu_0.1.4_arm64.deb          # Pi 4/400 only, for the GPU path
 oido-speak                                                   # or the "Speak" app icon
 ```
 
@@ -78,11 +78,11 @@ oido-speak                                                   # or the "Speak" ap
 
 ## Testing notes
 
-Packages: `oido-dictate_0.1.3_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.3_arm64.deb` (GPU add-on).
+Packages: `oido-dictate_0.1.4_arm64.deb` (CPU base) and `oido-dictate-gpu_0.1.4_arm64.deb` (GPU add-on).
 
 ```
-2eb0203fa22a51238f1c85a86bb4caee3766ac7cb5bef8a399adc2af9e71b882  oido-dictate_0.1.3_arm64.deb
-871fc7b33d26362c2d30c24a15ddc47022b711a299c34ab8afe7e85405a1da6a  oido-dictate-gpu_0.1.3_arm64.deb
+f3d72cf6dae470c95cf512af019748b0cb16abb4bfdbc19dbe9fd36909dd0c04  oido-dictate_0.1.4_arm64.deb
+c62cc5672d07adc5dde78a128ac2e67417fcf52b991474a556c3f0d443a9c999  oido-dictate-gpu_0.1.4_arm64.deb
 ```
 
 ### What was tested
