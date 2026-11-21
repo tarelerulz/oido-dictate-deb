@@ -19,11 +19,14 @@ export OIDO_PUNCT_MODEL="${OIDO_PUNCT_MODEL:-$MODELS/sherpa-onnx-online-punct-en
 export GPUPORT_WORK="${GPUPORT_WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/oido-dictate/gpu-work}"
 mkdir -p "$GPUPORT_WORK"
 
-# Type into the focused window with wtype (portable Wayland path). The author's
-# IME-daemon method needs a locally-built binary that is not shipped, so force
-# the key-by-key typer unless the user overrides it. Needs a wlroots Wayland
-# session (Raspberry Pi OS default: Wayfire / labwc). X11 or GNOME need ydotool.
-export DICTATE_METHOD="${DICTATE_METHOD:-type}"
+# Inject text through the native Wayland input-method daemon (imetype, shipped in
+# /opt/oido-dictate/bin) -- the same text-input channel an on-screen keyboard or
+# language input uses. It lands instantly in apps that speak text-input (Firefox,
+# so Gmail is as fast as a plain editor) with no key simulation and no clipboard.
+# inject.py auto-falls back to key-by-key wtype for any window that does not speak
+# text-input (XWayland apps) and when the daemon can't bind (X11 / GNOME), so this
+# is safe everywhere. Override with DICTATE_METHOD=type (or paste) to force it.
+export DICTATE_METHOD="${DICTATE_METHOD:-ime}"
 
 # Fetch models on first run if missing (best-effort; writes to the user cache if
 # the system dir is not writable).

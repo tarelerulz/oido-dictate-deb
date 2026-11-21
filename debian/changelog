@@ -1,3 +1,20 @@
+oido-dictate (0.1.5) unstable; urgency=medium
+
+  * Fix: typing was slower than in earlier builds, and text did not land natively in
+    web apps (Gmail in Firefox). Two causes, both fixed:
+    - inject.py defaults to the native Wayland input-method daemon (imetype, same path as
+      an on-screen keyboard), but the daemon was not in the package, so every phrase
+      silently fell back to key-by-key wtype. imetype is now shipped in
+      /opt/oido-dictate/bin and inject.py finds it there.
+    - oido-speak still forced DICTATE_METHOD=type (key-by-key), overriding that default,
+      because the imetype binary used to be unshipped. It now defaults to the native
+      input-method path (ime), with automatic fallback to wtype for windows/sessions that
+      do not speak text-input, so dictation into Firefox/Gmail is as fast as a plain editor.
+    - oido_worker.py now also finds the shared inject.py beside itself on a clean install,
+      not only in the author's ~/moonshine-v2 dev tree.
+
+ -- Tarel <334372633+tarelerulz@users.noreply.github.com>  Sat, 21 Nov 2026 00:05:00 +0000
+
 oido-dictate (0.1.4) unstable; urgency=medium
 
   * Fix: debian/copyright said MIT for the whole package. The bundled CPU engine comes from

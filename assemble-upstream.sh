@@ -17,6 +17,8 @@ mkdir -p "$UP/bin"
 cp "$SRC/oido_worker.py"  "$UP/"
 cp "$SRC/punct_server.py" "$UP/"
 cp "$INJECT"              "$UP/inject.py"
+# Native Wayland input-method daemon used by inject.py (fast, no key simulation).
+cp "${OIDO_IMETYPE:-$HOME/ime-dictate/imetype}" "$UP/bin/imetype"
 # All CPU binaries in bin/ (tasr_cli_a72_static + tasr_lmdecode_static today; add
 # tasr_cli_dotprod_static / tasr_lmdecode_dotprod_static for Pi 5 and they are
 # packaged automatically and chosen at runtime by CPU feature).
